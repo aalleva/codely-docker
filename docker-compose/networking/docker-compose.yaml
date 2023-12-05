@@ -1,0 +1,45 @@
+version: '2.3'
+services:
+  app:
+    build:
+      context: ${PWD}
+      dockerfile: Dockerfile
+    environment:
+      - DISPLAY_ERRORS
+      - MYSQL_HOST
+      - MYSQL_USER
+      - MYSQL_PASSWORD
+    ports:
+      - 8000:80
+    networks:
+      - application
+      - codelytv-network
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_PASSWORD}
+    volumes:
+      - ${PWD}/migrations:/docker-entrypoint-initdb.d
+    networks:
+      - admin
+      - codelytv-network
+
+  adminer:
+    image: adminer
+    ports:
+      - 8080:8080
+    networks:
+      - admin
+    depends_on:
+      - mysql
+
+networks:
+  codelytv-network: # No necesariamente tiene que ser el mismo nombre que el de la red creada
+    external:
+      name: codelytv-network
+  admin:
+  application:
+  other_network:
